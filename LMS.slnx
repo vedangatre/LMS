@@ -1,1 +1,4 @@
-<Solution />
+<Solution>
+  <Project Path="LMS.Core/LMS.Core.csproj" Id="6b1f5c3d-2a4e-4f3b-9c8d-a1b2c3d4e5f6" />
+  <Project Path="LMS.UnitTests/LMS.UnitTests.csproj" Id="d4e5f6a1-b2c3-4d5e-9f8a-1b2c3d4e5f6a" />
+</Solution>
