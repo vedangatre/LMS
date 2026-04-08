@@ -23,21 +23,72 @@ namespace LMS.UnitTests
         [Test]
         public void AddStudent_ShouldAddStudentSuccessfully()
         {
-            // Act
             var result = _service.AddStudent("Bob");
 
-            // Assert
             Assert.That(result, Is.Not.Null);
             Assert.That(result.StudentName, Is.EqualTo("Bob"));
         }
 
         [Test]
+        public void AddStudent_ShouldThrowArgumentNull_WhenNameIsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => _service.AddStudent(null!));
+        }
+
+        [Test]
+        public void AddStudent_ShouldThrowArgumentException_WhenNameIsEmpty()
+        {
+            Assert.Throws<ArgumentException>(() => _service.AddStudent(string.Empty));
+        }
+
+        [Test]
+        public void AddStudent_ShouldThrowArgumentException_WhenNameIsWhitespace()
+        {
+            Assert.Throws<ArgumentException>(() => _service.AddStudent("   "));
+        }
+
+
+        [Test]
+        public void DeleteStudent_ShouldReturnTrue_WhenStudentExists()
+        {
+            var result = _service.DeleteStudent(1);
+
+            Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void DeleteStudent_ShouldReturnFalse_WhenStudentDoesNotExist()
+        {
+            var result = _service.DeleteStudent(999);
+
+            Assert.That(result, Is.False);
+        }
+
+        [Test]
+        public void DeleteStudent_ShouldThroughException_WhenStudentIdIsInvalid()
+        {
+            Assert.Throws<ArgumentException>(() => _service.DeleteStudent(0));
+        }
+
+        [Test]
+        public void DeleteStudent_ShouldReturnFalse_WhenStudentHasActiveIssuedBooks()
+        {
+            var stubRepo = new Stubs.StudentRepositoryStub();
+            stubRepo.ExistingId = 2;
+            stubRepo.ExistingHasActiveIssues = true;
+            var service = new LMS.Core.Services.StudentService(stubRepo);
+
+            var result = service.DeleteStudent(2);
+
+            Assert.That(result, Is.False);
+        }
+
+
+        [Test]
         public void GetStudentById_ShouldReturnStudent_WhenExists()
         {
-            // Act
             var result = _service.GetStudentById(1);
 
-            // Assert
             Assert.That(result, Is.Not.Null);
             Assert.That(result.StudentName, Is.EqualTo("John"));
         }
@@ -45,31 +96,9 @@ namespace LMS.UnitTests
         [Test]
         public void GetStudentById_ShouldReturnNull_WhenNotExists()
         {
-            // Act
-            var result = _service.GetStudentById(999);
+            var result = _service.GetStudentById(34);
 
-            // Assert
             Assert.That(result, Is.Null);
-        }
-
-        [Test]
-        public void DeleteStudent_ShouldReturnTrue_WhenStudentExists()
-        {
-            // Act
-            var result = _service.DeleteStudent(1);
-
-            // Assert
-            Assert.That(result, Is.True);
-        }
-
-        [Test]
-        public void DeleteStudent_ShouldReturnFalse_WhenStudentDoesNotExist()
-        {
-            // Act
-            var result = _service.DeleteStudent(999);
-
-            // Assert
-            Assert.That(result, Is.False);
         }
     }
 }
