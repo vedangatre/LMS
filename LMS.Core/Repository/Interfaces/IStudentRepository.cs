@@ -10,7 +10,7 @@ namespace LMS.Core.Repository.Interfaces
         public Student AddStudent(string name);
         public bool DeleteStudent(int studentId);
 
-        public Student GetStudentById(int studentId);
+        public Student? GetStudentById(int studentId);
 
     }
 }

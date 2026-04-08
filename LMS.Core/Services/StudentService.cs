@@ -10,7 +10,7 @@ namespace LMS.Core.Services
     public class StudentService
     {
         IStudentRepository _studentRepository;
-        StudentService(IStudentRepository studentRepository)
+        public StudentService(IStudentRepository studentRepository)
         {
             _studentRepository = studentRepository;
         }
@@ -25,9 +25,9 @@ namespace LMS.Core.Services
             return _studentRepository.DeleteStudent(studentId);
         }
 
-        public Student GetStudentById(int student)
+        public Student? GetStudentById(int studentId)
         {
-            return _studentRepository.GetStudentById(student);
+            return _studentRepository.GetStudentById(studentId);
         }
     }
 }
