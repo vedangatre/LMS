@@ -16,7 +16,8 @@ namespace LMS.UnitTests
             var bookRepo = new IBookRepositoryStub();
             var bookAuthorRepo = new IBookAuthorRepositoryStub();
             var authorRepo = new IAuthorRepositoryStub();
-            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo);
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
 
             var result = service.AddBook("onepiece", new List<object> { "oda", "Tejas" });
 
@@ -32,7 +33,8 @@ namespace LMS.UnitTests
             var bookRepo = new IBookRepositoryStub();
             var bookAuthorRepo = new IBookAuthorRepositoryStub();
             var authorRepo = new IAuthorRepositoryStub();
-            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo);
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
 
             var first = service.AddBook(" onepiece ", new List<object> { " oda ", " Tejas " });
             Assert.That(first, Not.Null);
@@ -52,7 +54,8 @@ namespace LMS.UnitTests
             var bookRepo = new IBookRepositoryStub();
             var bookAuthorRepo = new IBookAuthorRepositoryStub();
             var authorRepo = new IAuthorRepositoryStub();
-            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo);
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
 
             Assert.Throws<ArgumentNullException>(() => service.AddBook(null, new List<object> { "oda" }));
             Assert.Throws<ArgumentException>(() => service.AddBook(42, new List<object> { "oda" }));
@@ -72,7 +75,8 @@ namespace LMS.UnitTests
             var bookRepo = new IBookRepositoryStub();
             var bookAuthorRepo = new IBookAuthorRepositoryStub();
             var authorRepo = new IAuthorRepositoryStub();
-            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo);
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
 
             // onepiece : oda, Tejas // add
             var b1 = service.AddBook("onepiece", new List<object> { "oda", "Tejas" });
@@ -101,6 +105,144 @@ namespace LMS.UnitTests
             Assert.That(bookRepo.GetAll().Count, EqualTo(4));     // b1, b2, b4, b5
             Assert.That(bookAuthorRepo.AddCallCount, EqualTo(9)); // 2 + 2 + 3 + 2
             Assert.That(authorRepo.TotalAuthors, EqualTo(7));      // oda, Tejas, harsh, Omkar, Vedang, Prajwal, arnav
+        }
+
+        [Test]
+        public void DeleteBook_DeletesFromBookAndBookAuthor()
+        {
+            var bookRepo = new IBookRepositoryStub();
+            var bookAuthorRepo = new IBookAuthorRepositoryStub();
+            var authorRepo = new IAuthorRepositoryStub();
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
+
+            var onepiece = service.AddBook("onepiece", new List<object> { "oda", "Tejas" });
+            var naruto = service.AddBook("naruto", new List<object> { "kishimoto" });
+
+            Assert.That(onepiece, Not.Null);
+            Assert.That(naruto, Not.Null);
+            Assert.That(bookRepo.GetAll().Count, EqualTo(2));
+            Assert.That(bookAuthorRepo.GetAuthorIdsByBookId(onepiece!.BookId).Count, EqualTo(2));
+            Assert.That(bookAuthorRepo.GetAuthorIdsByBookId(naruto!.BookId).Count, EqualTo(1));
+
+            service.DeleteBook(onepiece.BookId);
+
+            Assert.That(bookRepo.GetAll().Count, EqualTo(1));
+            Assert.That(bookRepo.GetAll()[0].BookId, EqualTo(naruto.BookId));
+            Assert.That(bookAuthorRepo.GetAuthorIdsByBookId(onepiece.BookId), Is.Empty);
+            Assert.That(bookAuthorRepo.GetAuthorIdsByBookId(naruto.BookId).Count, EqualTo(1));
+            Assert.That(bookAuthorRepo.DeleteByBookIdCallCount, EqualTo(1));
+        }
+
+        [Test]
+        public void AddCopies_DelegatesToBookCopyRepository()
+        {
+            var bookRepo = new IBookRepositoryStub();
+            var bookAuthorRepo = new IBookAuthorRepositoryStub();
+            var authorRepo = new IAuthorRepositoryStub();
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
+
+            service.AddCopies(10, 3);
+
+            Assert.That(bookCopyRepo.AddCopiesCallCount, EqualTo(1));
+            Assert.That(bookCopyRepo.LastBookId, EqualTo(10));
+            Assert.That(bookCopyRepo.LastCount, EqualTo(3));
+        }
+
+        [Test]
+        public void GetAllBooks_ReturnsAllBooks()
+        {
+            var bookRepo = new IBookRepositoryStub();
+            var bookAuthorRepo = new IBookAuthorRepositoryStub();
+            var authorRepo = new IAuthorRepositoryStub();
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
+
+            service.AddBook("onepiece", new List<object> { "oda", "tejas" });
+            service.AddBook("naruto", new List<object> { "kishimoto" });
+
+            var result = service.GetAllBooks();
+
+            Assert.That(result.Count, EqualTo(2));
+        }
+
+        [Test]
+        public void SearchByBookName_ReturnsMatchingBooks()
+        {
+            var bookRepo = new IBookRepositoryStub();
+            var bookAuthorRepo = new IBookAuthorRepositoryStub();
+            var authorRepo = new IAuthorRepositoryStub();
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
+
+            service.AddBook("onepiece", new List<object> { "oda", "tejas" });
+            service.AddBook("onepiece", new List<object> { "harsh", "omkar" });
+            service.AddBook("naruto", new List<object> { "kishimoto" });
+
+            var result = service.SearchByBookName(" onepiece ");
+
+            Assert.That(result.Count, EqualTo(2));
+            Assert.That(result.TrueForAll(b => b.BookName == "onepiece"), Is.True);
+        }
+
+        [Test]
+        public void SearchByAuthorName_ReturnsBooksLinkedToAuthor()
+        {
+            var bookRepo = new IBookRepositoryStub();
+            var bookAuthorRepo = new IBookAuthorRepositoryStub();
+            var authorRepo = new IAuthorRepositoryStub();
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
+
+            service.AddBook("onepiece", new List<object> { "oda", "tejas" });
+            service.AddBook("monster", new List<object> { "oda", "naoki" });
+            service.AddBook("naruto", new List<object> { "kishimoto" });
+
+            var result = service.SearchByAuthorName(" oda ");
+
+            Assert.That(result.Count, EqualTo(2));
+            Assert.That(result.Exists(b => b.BookName == "onepiece"), Is.True);
+            Assert.That(result.Exists(b => b.BookName == "monster"), Is.True);
+        }
+
+        [Test]
+        public void RemoveCopies_WhenCopiesAreNotIssued_RemovesRequestedCopies()
+        {
+            var bookRepo = new IBookRepositoryStub();
+            var bookAuthorRepo = new IBookAuthorRepositoryStub();
+            var authorRepo = new IAuthorRepositoryStub();
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
+
+            bookCopyRepo.SeedAvailableCopies(7, 3);
+
+            service.RemoveCopies(7, 2);
+
+            Assert.That(bookCopyRepo.RemoveCopiesCallCount, EqualTo(1));
+            Assert.That(bookCopyRepo.LastBookId, EqualTo(7));
+            Assert.That(bookCopyRepo.LastCount, EqualTo(2));
+        }
+
+        [Test]
+        public void Delete_WhenAnyCopyIsNotIssued_DeletesBookAndBookAuthorMappings()
+        {
+            var bookRepo = new IBookRepositoryStub();
+            var bookAuthorRepo = new IBookAuthorRepositoryStub();
+            var authorRepo = new IAuthorRepositoryStub();
+            var bookCopyRepo = new IBookCopyRepositoryStub();
+            var service = new BookService(bookRepo, bookAuthorRepo, authorRepo, bookCopyRepo);
+
+            var book = service.AddBook("bleach", new List<object> { "kubo" });
+            Assert.That(book, Not.Null);
+
+            bookCopyRepo.SeedAvailableCopies(book!.BookId, 1);
+
+            service.Delete(book.BookId);
+
+            Assert.That(bookRepo.GetAll().Count, EqualTo(0));
+            Assert.That(bookAuthorRepo.GetAuthorIdsByBookId(book.BookId), Is.Empty);
+            Assert.That(bookAuthorRepo.DeleteByBookIdCallCount, EqualTo(1));
         }
     }
 }

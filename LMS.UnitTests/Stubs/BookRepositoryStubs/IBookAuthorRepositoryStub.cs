@@ -10,6 +10,7 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
         private readonly Dictionary<int, HashSet<int>> _bookToAuthorIds = new();
 
         public int AddCallCount { get; private set; }
+        public int DeleteByBookIdCallCount { get; private set; }
 
         public void Add(int bookId, int authorId)
         {
@@ -22,6 +23,12 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
             }
 
             set.Add(authorId);
+        }
+
+        public void DeleteByBookId(int bookId)
+        {
+            DeleteByBookIdCallCount++;
+            _bookToAuthorIds.Remove(bookId);
         }
 
         public List<int> GetBookIdsByAuthorId(int authorId)

@@ -11,15 +11,18 @@ namespace LMS.Core.Services
         private readonly IBookRepository _bookRepository;
         private readonly IBookAuthorRepository _bookAuthorRepository;
         private readonly IAuthorRepository _authorRepository;
+        private readonly IBookCopyRepository _bookCopyRepository;
 
         public BookService(
             IBookRepository bookRepository,
             IBookAuthorRepository bookAuthorRepository,
-            IAuthorRepository authorRepository)
+            IAuthorRepository authorRepository,
+            IBookCopyRepository bookCopyRepository)
         {
             _bookRepository = bookRepository ?? throw new ArgumentNullException(nameof(bookRepository));
             _bookAuthorRepository = bookAuthorRepository ?? throw new ArgumentNullException(nameof(bookAuthorRepository));
             _authorRepository = authorRepository ?? throw new ArgumentNullException(nameof(authorRepository));
+            _bookCopyRepository = bookCopyRepository ?? throw new ArgumentNullException(nameof(bookCopyRepository));
         }
 
         public Book? AddBook(object? bookName, List<object>? authorNames)
@@ -92,6 +95,101 @@ namespace LMS.Core.Services
             }
 
             return createdBook;
+        }
+
+        public void DeleteBook(int bookId)
+        {
+            _bookAuthorRepository.DeleteByBookId(bookId);
+            _bookRepository.Delete(bookId);
+        }
+
+        public void Delete(int bookId)
+        {
+            if (bookId <= 0) throw new ArgumentOutOfRangeException(nameof(bookId));
+
+            if (_bookCopyRepository.GetAvailableCopy(bookId) is null)
+            {
+                throw new InvalidOperationException("Cannot delete book when no unissued copy is available.");
+            }
+
+            _bookAuthorRepository.DeleteByBookId(bookId);
+            _bookRepository.Delete(bookId);
+        }
+
+        public void AddCopies(int bookId, int count)
+        {
+            if (bookId <= 0) throw new ArgumentOutOfRangeException(nameof(bookId));
+            if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
+
+            _bookCopyRepository.AddCopies(bookId, count);
+        }
+
+        public void RemoveCopies(int bookId, int count)
+        {
+            if (bookId <= 0) throw new ArgumentOutOfRangeException(nameof(bookId));
+            if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
+
+            for (int i = 0; i < count; i++)
+            {
+                if (_bookCopyRepository.GetAvailableCopy(bookId) is null)
+                {
+                    throw new InvalidOperationException("Cannot remove copies because one or more copies are issued.");
+                }
+            }
+
+            _bookCopyRepository.RemoveCopies(bookId, count);
+        }
+
+        public List<Book> GetAllBooks()
+        {
+            return _bookRepository.GetAll();
+        }
+
+        public List<Book> SearchByBookName(string name)
+        {
+            if (name is null) throw new ArgumentNullException(nameof(name));
+
+            var normalizedName = name.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedName))
+            {
+                throw new ArgumentException("Book name cannot be empty.", nameof(name));
+            }
+
+            return _bookRepository.SearchByName(normalizedName);
+        }
+
+        public List<Book> SearchByAuthorName(string authorName)
+        {
+            if (authorName is null) throw new ArgumentNullException(nameof(authorName));
+
+            var normalizedAuthorName = authorName.Trim();
+            if (string.IsNullOrWhiteSpace(normalizedAuthorName))
+            {
+                throw new ArgumentException("Author name cannot be empty.", nameof(authorName));
+            }
+
+            var authors = _authorRepository.GetByName(normalizedAuthorName);
+            if (authors is null || authors.Count == 0)
+            {
+                return new List<Book>();
+            }
+
+            var bookIds = new HashSet<int>();
+            foreach (var author in authors)
+            {
+                var linkedBookIds = _bookAuthorRepository.GetBookIdsByAuthorId(author.AuthorId);
+                foreach (var bookId in linkedBookIds)
+                {
+                    bookIds.Add(bookId);
+                }
+            }
+
+            if (bookIds.Count == 0)
+            {
+                return new List<Book>();
+            }
+
+            return _bookRepository.GetByIds(bookIds.ToList());
         }
     }
 }

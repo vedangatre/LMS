@@ -8,8 +8,10 @@ namespace LMS.Core.Repository.Interfaces
     {
         void Add(int bookId, int authorId);
 
+        void DeleteByBookId(int bookId);
+
         List<int> GetBookIdsByAuthorId(int authorId);
 
-        List<int> GetAuthorIdsByBookId(int bookId); // ADD THIS (needed)
+        List<int> GetAuthorIdsByBookId(int bookId);
     }
 }
