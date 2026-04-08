@@ -26,7 +26,6 @@
 
   <ItemGroup>
     <Folder Include="Stubs\IssueServiceStubs\" />
-    <Folder Include="Stubs\StudentServiceStubs\" />
   </ItemGroup>
 
 </Project>
