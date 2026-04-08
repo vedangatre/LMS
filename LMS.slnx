@@ -1,1 +1,4 @@
-<Solution />
+<Solution>
+  <Project Path="LMS.Core/LMS.Core.csproj" />
+  <Project Path="LMS.UnitTests/LMS.UnitTests.csproj" />
+</Solution>

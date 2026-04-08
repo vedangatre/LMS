@@ -1,10 +1,33 @@
-﻿using System;
+﻿using LMS.Core.Models;
+using LMS.Core.Repository.Implementation;
+using LMS.Core.Repository.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace LMS.Core.Services
 {
-    internal class StudentService
+    public class StudentService
     {
+        IStudentRepository _studentRepository;
+        StudentService(IStudentRepository studentRepository)
+        {
+            _studentRepository = studentRepository;
+        }
+
+        public Student AddStudent(string name)
+        {
+            return _studentRepository.AddStudent(name);
+        }
+
+        public bool DeleteStudent(int studentId)
+        {
+            return _studentRepository.DeleteStudent(studentId);
+        }
+
+        public Student GetStudentById(int student)
+        {
+            return _studentRepository.GetStudentById(student);
+        }
     }
 }

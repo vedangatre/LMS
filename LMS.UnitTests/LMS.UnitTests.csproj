@@ -17,7 +17,17 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LMS.Core\LMS.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Stubs\BookServiceStubs\" />
+    <Folder Include="Stubs\IssueServiceStubs\" />
+    <Folder Include="Stubs\StudentServiceStubs\" />
   </ItemGroup>
 
 </Project>

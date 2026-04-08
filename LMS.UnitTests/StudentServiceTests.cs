@@ -4,7 +4,8 @@ using System.Text;
 
 namespace LMS.UnitTests
 {
-    internal class StudentServiceTests
+    public class StudentServiceTests
     {
+       
     }
 }
