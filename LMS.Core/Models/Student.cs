@@ -6,7 +6,7 @@ namespace LMS.Core.Models
 {
     public class Student
     {
-        int StudentId { get; set; }
-        string StudentName { get; set; }
+        public int StudentId { get; set; }
+        public string StudentName { get; set; }
     }
 }
