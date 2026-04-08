@@ -26,6 +26,8 @@
 
   <ItemGroup>
     <Folder Include="Stubs\IssueServiceStubs\" />
+    <Folder Include="Stubs\BookServiceStubs\" />
+    <Folder Include="Stubs\StudentServiceStubs\" />
   </ItemGroup>
 
 </Project>
