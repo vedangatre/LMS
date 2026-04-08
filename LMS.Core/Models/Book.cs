@@ -6,7 +6,7 @@ namespace LMS.Core.Models
 {
     public class Book
     {
-        int BookId { get; set; }
-        string BookName { get; set; }
+        public int BookId { get; set; }
+        public string BookName { get; set; } = string.Empty;
     }
 }

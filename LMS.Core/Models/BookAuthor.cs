@@ -6,7 +6,7 @@ namespace LMS.Core.Models
 {
     public class BookAuthor
     {
-        int BookId { get; set; }
-        int AuthorId { get; set; }
+        public int BookId { get; set; }
+        public int AuthorId { get; set; }
     }
 }
