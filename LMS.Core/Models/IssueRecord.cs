@@ -6,10 +6,10 @@ namespace LMS.Core.Models
 {
     public class IssueRecord
     {
-        int IssueId { get; set; }
-        int StudentId { get; set; }
-        int CopyId { get; set; }
-        DateTime IssueDate { get; set; }
-        DateTime? ReturnDate { get; set; }
+        public int IssueId { get; set; }
+        public int StudentId { get; set; }
+        public int CopyId { get; set; }
+        public DateTime IssueDate { get; set; }
+        public DateTime? ReturnDate { get; set; }
     }
 }
