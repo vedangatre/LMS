@@ -6,6 +6,7 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
     internal class IBookCopyRepositoryStub : IBookCopyRepository
     {
         private readonly Dictionary<int, int> _availableCopiesByBookId = new();
+        private readonly Dictionary<int, int> _issuedCopiesByBookId = new();
 
         public int AddCopiesCallCount { get; private set; }
         public int RemoveCopiesCallCount { get; private set; }
@@ -43,6 +44,25 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
             RemoveCopiesCallCount++;
             LastBookId = bookId;
             LastCount = count;
+        }
+
+        public int GetTotalCount(int bookId)
+        {
+            _availableCopiesByBookId.TryGetValue(bookId, out var available);
+            _issuedCopiesByBookId.TryGetValue(bookId, out var issued);
+            return available + issued;
+        }
+
+        public int GetIssuedCount(int bookId)
+        {
+            _issuedCopiesByBookId.TryGetValue(bookId, out var issued);
+            return issued;
+        }
+
+        public void DeleteAllByBookId(int bookId)
+        {
+            _availableCopiesByBookId.Remove(bookId);
+            _issuedCopiesByBookId.Remove(bookId);
         }
     }
 }

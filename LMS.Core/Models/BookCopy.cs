@@ -6,8 +6,8 @@ namespace LMS.Core.Models
 {
     public class BookCopy
     {
-        int CopyId { get; set; } 
-        int BookId { get; set; }
-        bool IsDamaged { get; set; } = false;
+        public int CopyId { get; set; }
+        public int BookId { get; set; }
+        public bool IsDamaged { get; set; } = false; //out of scope..
     }
 }

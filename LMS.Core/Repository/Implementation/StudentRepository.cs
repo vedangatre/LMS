@@ -1,30 +1,86 @@
-﻿using LMS.Core.Models;
+﻿using System.Data;
+using LMS.Core.Models;
 using LMS.Core.Repository.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LMS.Core.Repository.Implementation
 {
     public class StudentRepository : IStudentRepository
     {
+        private readonly IDbConnectionFactory _connectionFactory;
+
+        public StudentRepository(IDbConnectionFactory connectionFactory)
+        {
+            _connectionFactory = connectionFactory;
+        }
+
         public Student AddStudent(string name)
         {
-            // Simple in-memory stub for passing unit tests; in real app this would persist
-            return new Student { StudentId = 1, StudentName = name };
+            const string sql = @"
+                INSERT INTO Student (StudentName)
+                VALUES (@studentName);
+                SELECT CAST(SCOPE_IDENTITY() AS int);";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var nameParameter = command.CreateParameter();
+            nameParameter.ParameterName = "@studentName";
+            nameParameter.Value = name;
+            command.Parameters.Add(nameParameter);
+
+            connection.Open();
+            var newId = (int)command.ExecuteScalar()!;
+
+            return new Student { StudentId = newId, StudentName = name };
         }
 
         public bool DeleteStudent(int studentId)
         {
-            // For tests, pretend delete succeeds for id > 0
-            return studentId > 0;
+            const string sql = @"DELETE FROM Student WHERE StudentId = @studentId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@studentId";
+            idParameter.Value = studentId;
+            command.Parameters.Add(idParameter);
+
+            connection.Open();
+            return command.ExecuteNonQuery() > 0;
         }
 
-        public Student GetStudentById(int studentId)
+        public Student? GetStudentById(int studentId)
         {
-            // Simple behavior: return null if id <= 0, otherwise return a Student
-            if (studentId <= 0) return null!;
-            return new Student { StudentId = studentId, StudentName = $"Student{studentId}" };
+            const string sql = @"
+                SELECT StudentId, StudentName
+                FROM Student
+                WHERE StudentId = @studentId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@studentId";
+            idParameter.Value = studentId;
+            command.Parameters.Add(idParameter);
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            return new Student
+            {
+                StudentId = reader.GetInt32(0),
+                StudentName = reader.GetString(1)
+            };
         }
     }
 }

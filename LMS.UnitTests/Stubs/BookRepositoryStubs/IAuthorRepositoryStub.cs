@@ -33,6 +33,11 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
             return _authors.Where(a => a.AuthorName == name).ToList();
         }
 
+        public List<Author> GetByIds(List<int> authorIds)
+        {
+            return _authors.Where(a => authorIds.Contains(a.AuthorId)).ToList();
+        }
+
         public int TotalAuthors => _authors.Count;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using LMS.Core.Dto;
 using LMS.Core.Models;
 using LMS.Core.Repository.Interfaces;
 
@@ -28,6 +29,17 @@ namespace LMS.Core.Services
         public int GetIssuedBooks()
         {
             return _issueRepository.GetIssuedBooks();
+        }
+
+        public List<IssuedBookReportItem> GetIssuedBookReport()
+        {
+            var items = _issueRepository.GetIssuedBookDetails();
+            foreach (var item in items)
+            {
+                item.DaysPassed = (int)(DateTime.UtcNow.Date - item.IssueDate.Date).TotalDays;
+            }
+
+            return items;
         }
     }
 }
