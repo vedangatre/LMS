@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="LMS.Core/LMS.Core.csproj" />
   <Project Path="LMS.Librarian.ConsoleApp/LMS.Librarian.ConsoleApp.csproj" Id="9ec462c6-1eb0-4894-a85d-30b6e854f70e" />
+  <Project Path="LMS.Student.ConsoleApp/LMS.Student.ConsoleApp.csproj" Id="4d827e08-2255-4e80-8c63-8c2e34ee260b" />
   <Project Path="LMS.UnitTests/LMS.UnitTests.csproj" />
 </Solution>

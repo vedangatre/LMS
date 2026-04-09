@@ -15,7 +15,7 @@ namespace LMS.Core.Repository.Implementation
 
         public void AddCopies(int bookId, int count)
         {
-            const string sql = @"INSERT INTO BookCopy (BookId, IsDamaged) VALUES (@bookId, 0)";
+            const string sql = @"INSERT INTO BookCopy (BookId, IsDamaged) VALUES (@bookId, @isDamaged)";
 
             using var connection = _connectionFactory.CreateConnection();
             connection.Open();
@@ -30,12 +30,84 @@ namespace LMS.Core.Repository.Implementation
             idParameter.Value = bookId;
             command.Parameters.Add(idParameter);
 
+            var damagedParameter = command.CreateParameter();
+            damagedParameter.ParameterName = "@isDamaged";
+            damagedParameter.Value = false;
+            command.Parameters.Add(damagedParameter);
+
             for (var i = 0; i < count; i++)
             {
                 command.ExecuteNonQuery();
             }
 
             transaction.Commit();
+        }
+
+        public void DeleteByBookId(int bookId)
+        {
+            const string sql = @"DELETE FROM BookCopy WHERE BookId = @bookId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@bookId";
+            idParameter.Value = bookId;
+            command.Parameters.Add(idParameter);
+
+            connection.Open();
+            command.ExecuteNonQuery();
+        }
+
+        public bool HasIssuedCopies(int bookId)
+        {
+            return GetIssuedCount(bookId) > 0;
+        }
+
+        public int GetIssuedCount(int bookId)
+        {
+            const string sql = @"
+                SELECT COUNT(*)
+                FROM IssueRecord ir
+                INNER JOIN BookCopy bc ON bc.CopyId = ir.CopyId
+                WHERE bc.BookId = @bookId
+                  AND ir.ReturnDate IS NULL";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@bookId";
+            idParameter.Value = bookId;
+            command.Parameters.Add(idParameter);
+
+            connection.Open();
+            return (int)command.ExecuteScalar()!;
+        }
+
+        public int GetAvailableCount(int bookId)
+        {
+            const string sql = @"
+                SELECT COUNT(*)
+                FROM BookCopy bc
+                LEFT JOIN IssueRecord ir
+                  ON ir.CopyId = bc.CopyId AND ir.ReturnDate IS NULL
+                WHERE bc.BookId = @bookId
+                  AND ir.IssueId IS NULL";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var idParameter = command.CreateParameter();
+            idParameter.ParameterName = "@bookId";
+            idParameter.Value = bookId;
+            command.Parameters.Add(idParameter);
+
+            connection.Open();
+            return (int)command.ExecuteScalar()!;
         }
 
         public void RemoveCopies(int bookId, int count)
@@ -105,62 +177,6 @@ namespace LMS.Core.Repository.Implementation
                 CopyId = reader.GetInt32(0),
                 BookId = reader.GetInt32(1)
             };
-        }
-
-        public int GetTotalCount(int bookId)
-        {
-            const string sql = @"SELECT COUNT(*) FROM BookCopy WHERE BookId = @bookId";
-
-            using var connection = _connectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = sql;
-
-            var idParameter = command.CreateParameter();
-            idParameter.ParameterName = "@bookId";
-            idParameter.Value = bookId;
-            command.Parameters.Add(idParameter);
-
-            connection.Open();
-            return (int)command.ExecuteScalar()!;
-        }
-
-        public int GetIssuedCount(int bookId)
-        {
-            const string sql = @"
-                SELECT COUNT(*)
-                FROM BookCopy bc
-                INNER JOIN IssueRecord ir
-                    ON ir.CopyId = bc.CopyId AND ir.ReturnDate IS NULL
-                WHERE bc.BookId = @bookId";
-
-            using var connection = _connectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = sql;
-
-            var idParameter = command.CreateParameter();
-            idParameter.ParameterName = "@bookId";
-            idParameter.Value = bookId;
-            command.Parameters.Add(idParameter);
-
-            connection.Open();
-            return (int)command.ExecuteScalar()!;
-        }
-
-        public void DeleteAllByBookId(int bookId)
-        {
-            const string sql = @"DELETE FROM BookCopy WHERE BookId = @bookId";
-
-            using var connection = _connectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = sql;
-
-            var idParameter = command.CreateParameter();
-            idParameter.ParameterName = "@bookId";
-            idParameter.Value = bookId;
-            command.Parameters.Add(idParameter);
-
-            connection.Open();
-            command.ExecuteNonQuery();
         }
     }
 }

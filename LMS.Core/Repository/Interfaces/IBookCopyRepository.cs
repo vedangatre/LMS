@@ -10,16 +10,14 @@ namespace LMS.Core.Repository.Interfaces
         void AddCopies(int bookId, int count);
 
         void RemoveCopies(int bookId, int count);
+        void DeleteByBookId(int bookId);
+        bool HasIssuedCopies(int bookId);
+        int GetIssuedCount(int bookId);
+        int GetAvailableCount(int bookId);
         //later change to remove specific copy by copyId
         // remove damaged copies 
         // change status of copy to damaged function
 
         BookCopy? GetAvailableCopy(int bookId);
-
-        int GetTotalCount(int bookId);
-
-        int GetIssuedCount(int bookId);
-
-        void DeleteAllByBookId(int bookId);
     }
 }

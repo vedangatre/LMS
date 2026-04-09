@@ -10,7 +10,6 @@ namespace LMS.Core.Repository.Interfaces
         Author Add(Author author);
 
         List<Author> GetByName(string name);
-
         List<Author> GetByIds(List<int> authorIds);
     }
 }

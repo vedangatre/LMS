@@ -12,6 +12,8 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
         public int RemoveCopiesCallCount { get; private set; }
         public int LastBookId { get; private set; }
         public int LastCount { get; private set; }
+        public bool HasIssuedCopiesResult { get; set; }
+        public int DeleteByBookIdCallCount { get; private set; }
 
         public void SeedAvailableCopies(int bookId, int count)
         {
@@ -46,23 +48,31 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
             LastCount = count;
         }
 
-        public int GetTotalCount(int bookId)
+        public void DeleteByBookId(int bookId)
         {
-            _availableCopiesByBookId.TryGetValue(bookId, out var available);
-            _issuedCopiesByBookId.TryGetValue(bookId, out var issued);
-            return available + issued;
+            DeleteByBookIdCallCount++;
+            LastBookId = bookId;
+            _availableCopiesByBookId.Remove(bookId);
+        }
+
+        public bool HasIssuedCopies(int bookId)
+        {
+            return HasIssuedCopiesResult;
         }
 
         public int GetIssuedCount(int bookId)
         {
-            _issuedCopiesByBookId.TryGetValue(bookId, out var issued);
-            return issued;
+            return _issuedCopiesByBookId.TryGetValue(bookId, out var count) ? count : 0;
         }
 
-        public void DeleteAllByBookId(int bookId)
+        public int GetAvailableCount(int bookId)
         {
-            _availableCopiesByBookId.Remove(bookId);
-            _issuedCopiesByBookId.Remove(bookId);
+            return _availableCopiesByBookId.TryGetValue(bookId, out var count) ? count : 0;
+        }
+
+        public void SeedIssuedCopies(int bookId, int count)
+        {
+            _issuedCopiesByBookId[bookId] = count;
         }
     }
 }

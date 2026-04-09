@@ -1,9 +1,7 @@
-﻿using LMS.Core.Dto;
-using LMS.Core.Models;
+﻿using LMS.Core.Models;
 using LMS.Core.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace LMS.UnitTests.Stubs.IssueServiceStubs
@@ -36,16 +34,6 @@ namespace LMS.UnitTests.Stubs.IssueServiceStubs
         public int GetIssuedBooks()
         {
             return _issueRecords.FindAll(r => r.ReturnDate == null).Count;
-        }
-
-        public bool HasActiveIssuesForStudent(int studentId)
-        {
-            return _issueRecords.Any(r => r.StudentId == studentId && r.ReturnDate == null);
-        }
-
-        public List<IssuedBookReportItem> GetIssuedBookDetails()
-        {
-            return new List<IssuedBookReportItem>();
         }
     }
 }
