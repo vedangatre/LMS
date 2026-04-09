@@ -35,7 +35,8 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
 
         public List<Author> GetByIds(List<int> authorIds)
         {
-            return _authors.Where(a => authorIds.Contains(a.AuthorId)).ToList();
+            var set = new HashSet<int>(authorIds);
+            return _authors.Where(a => set.Contains(a.AuthorId)).ToList();
         }
 
         public int TotalAuthors => _authors.Count;

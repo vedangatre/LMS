@@ -1,4 +1,3 @@
-using LMS.Core.Dto;
 using LMS.Core.Models;
 using LMS.Core.Repository.Interfaces;
 
@@ -83,59 +82,6 @@ namespace LMS.Core.Repository.Implementation
 
             connection.Open();
             return (int)command.ExecuteScalar()!;
-        }
-
-        public bool HasActiveIssuesForStudent(int studentId)
-        {
-            const string sql = @"
-                SELECT COUNT(*)
-                FROM IssueRecord
-                WHERE StudentId = @studentId AND ReturnDate IS NULL";
-
-            using var connection = _connectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = sql;
-
-            var studentParameter = command.CreateParameter();
-            studentParameter.ParameterName = "@studentId";
-            studentParameter.Value = studentId;
-            command.Parameters.Add(studentParameter);
-
-            connection.Open();
-            return (int)command.ExecuteScalar()! > 0;
-        }
-
-        public List<IssuedBookReportItem> GetIssuedBookDetails()
-        {
-            const string sql = @"
-                SELECT s.StudentName, b.BookName, ir.IssueDate
-                FROM IssueRecord ir
-                INNER JOIN Student s ON s.StudentId = ir.StudentId
-                INNER JOIN BookCopy bc ON bc.CopyId = ir.CopyId
-                INNER JOIN Book b ON b.BookId = bc.BookId
-                WHERE ir.ReturnDate IS NULL
-                ORDER BY ir.IssueDate";
-
-            var results = new List<IssuedBookReportItem>();
-
-            using var connection = _connectionFactory.CreateConnection();
-            using var command = connection.CreateCommand();
-            command.CommandText = sql;
-
-            connection.Open();
-            using var reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                results.Add(new IssuedBookReportItem
-                {
-                    StudentName = reader.GetString(0),
-                    BookName = reader.GetString(1),
-                    IssueDate = reader.GetDateTime(2)
-                });
-            }
-
-            return results;
         }
     }
 }

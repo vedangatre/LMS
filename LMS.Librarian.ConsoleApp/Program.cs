@@ -192,7 +192,7 @@ static void DeleteStudent(StudentService studentService)
 
 static void ListBooks(BookService bookService)
 {
-    var books = bookService.GetBookReport();
+    var books = bookService.GetAllBooks();
     if (books.Count == 0)
     {
         Console.WriteLine("No books found.");
@@ -202,25 +202,13 @@ static void ListBooks(BookService bookService)
     Console.WriteLine("Books in library:");
     foreach (var book in books)
     {
-        Console.WriteLine($"{book.BookId}: {book.BookName}");
-        Console.WriteLine($"  Authors: {book.Authors}");
-        Console.WriteLine($"  Issued: {book.IssuedCount}");
-        Console.WriteLine($"  Available: {book.AvailableCount}");
+        var authors = book.AuthorNames.Count == 0 ? "(none)" : string.Join(", ", book.AuthorNames);
+        Console.WriteLine($"{book.BookId}: {book.BookName} | Authors: {authors} | Issued: {book.IssuedCount} | Available: {book.AvailableCount}");
     }
 }
 
 static void ShowIssuedBooks(IssueService issueService)
 {
-    var issued = issueService.GetIssuedBookReport();
-    if (issued.Count == 0)
-    {
-        Console.WriteLine("No issued books.");
-        return;
-    }
-
-    Console.WriteLine("Issued books:");
-    foreach (var item in issued)
-    {
-        Console.WriteLine($"{item.StudentName} - {item.BookName} - {item.IssueDate:yyyy-MM-dd} ({item.DaysPassed} days)");
-    }
+    var count = issueService.GetIssuedBooks();
+    Console.WriteLine($"Issued books count: {count}");
 }

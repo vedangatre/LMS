@@ -1,5 +1,4 @@
-﻿using LMS.Core.Dto;
-using LMS.Core.Models;
+﻿using LMS.Core.Models;
 using LMS.Core.Repository.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -102,30 +101,20 @@ namespace LMS.Core.Services
 
         public void DeleteBook(int bookId)
         {
-            if (_bookCopyRepository.GetIssuedCount(bookId) > 0)
+            if (_bookCopyRepository.HasIssuedCopies(bookId))
             {
-                throw new InvalidOperationException("Cannot delete book when any copy is issued.");
+                throw new InvalidOperationException("Cannot delete book because one or more copies are issued.");
             }
 
-            _bookCopyRepository.DeleteAllByBookId(bookId);
+            _bookCopyRepository.DeleteByBookId(bookId);
             _bookAuthorRepository.DeleteByBookId(bookId);
             _bookRepository.Delete(bookId);
         }
 
         public void Delete(int bookId)
         {
-            if (bookId <= 0) throw new ArgumentOutOfRangeException(nameof(bookId));
-
-            if (_bookCopyRepository.GetIssuedCount(bookId) > 0)
-            {
-                throw new InvalidOperationException("Cannot delete book when any copy is issued.");
-            }
-
-            _bookCopyRepository.DeleteAllByBookId(bookId);
-            _bookAuthorRepository.DeleteByBookId(bookId);
-            _bookRepository.Delete(bookId);
+            DeleteBook(bookId);
         }
-
         public void AddCopies(int bookId, int count)
         {
             if (bookId <= 0) throw new ArgumentOutOfRangeException(nameof(bookId));
@@ -139,17 +128,41 @@ namespace LMS.Core.Services
             if (bookId <= 0) throw new ArgumentOutOfRangeException(nameof(bookId));
             if (count <= 0) throw new ArgumentOutOfRangeException(nameof(count));
 
-            if (_bookCopyRepository.GetIssuedCount(bookId) > 0)
+            if (_bookCopyRepository.HasIssuedCopies(bookId))
             {
                 throw new InvalidOperationException("Cannot remove copies because one or more copies are issued.");
+            }
+
+            var availableCount = _bookCopyRepository.GetAvailableCount(bookId);
+            if (availableCount < count)
+            {
+                throw new InvalidOperationException("Cannot remove copies because not enough copies are available.");
             }
 
             _bookCopyRepository.RemoveCopies(bookId, count);
         }
 
-        public List<Book> GetAllBooks()
+        public List<BookDetails> GetAllBooks()
         {
-            return _bookRepository.GetAll();
+            var books = _bookRepository.GetAll();
+            var results = new List<BookDetails>();
+
+            foreach (var book in books)
+            {
+                var authorIds = _bookAuthorRepository.GetAuthorIdsByBookId(book.BookId);
+                var authors = _authorRepository.GetByIds(authorIds);
+
+                results.Add(new BookDetails
+                {
+                    BookId = book.BookId,
+                    BookName = book.BookName,
+                    AuthorNames = authors.Select(a => a.AuthorName).ToList(),
+                    IssuedCount = _bookCopyRepository.GetIssuedCount(book.BookId),
+                    AvailableCount = _bookCopyRepository.GetAvailableCount(book.BookId)
+                });
+            }
+
+            return results;
         }
 
         public List<Book> SearchByBookName(string name)
@@ -197,33 +210,6 @@ namespace LMS.Core.Services
             }
 
             return _bookRepository.GetByIds(bookIds.ToList());
-        }
-
-        public List<BookReportItem> GetBookReport()
-        {
-            var books = _bookRepository.GetAll();
-            var results = new List<BookReportItem>();
-
-            foreach (var book in books)
-            {
-                var authorIds = _bookAuthorRepository.GetAuthorIdsByBookId(book.BookId);
-                var authors = _authorRepository.GetByIds(authorIds);
-                var authorNames = string.Join(", ", authors.Select(a => a.AuthorName));
-
-                var total = _bookCopyRepository.GetTotalCount(book.BookId);
-                var issued = _bookCopyRepository.GetIssuedCount(book.BookId);
-
-                results.Add(new BookReportItem
-                {
-                    BookId = book.BookId,
-                    BookName = book.BookName,
-                    Authors = authorNames,
-                    IssuedCount = issued,
-                    AvailableCount = Math.Max(0, total - issued)
-                });
-            }
-
-            return results;
         }
     }
 }
