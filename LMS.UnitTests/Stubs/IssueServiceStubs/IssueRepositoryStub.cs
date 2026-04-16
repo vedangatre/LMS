@@ -31,9 +31,9 @@ namespace LMS.UnitTests.Stubs.IssueServiceStubs
             return 0; // Return 0 if no record was found
         }
 
-        public int GetIssuedBooks()
+        public List<IssueRecord> GetIssuedBooks()
         {
-            return _issueRecords.FindAll(r => r.ReturnDate == null).Count;
+            return _issueRecords.FindAll(r => r.ReturnDate == null);
         }
     }
 }

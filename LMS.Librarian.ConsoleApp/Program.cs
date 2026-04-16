@@ -209,6 +209,6 @@ static void ListBooks(BookService bookService)
 
 static void ShowIssuedBooks(IssueService issueService)
 {
-    var count = issueService.GetIssuedBooks();
-    Console.WriteLine($"Issued books count: {count}");
+    var issuedBooks = issueService.GetIssuedBooks();
+    Console.WriteLine($"Issued books count: {issuedBooks.Count}");
 }

@@ -12,83 +12,64 @@ namespace LMS.UnitTests
     public class IssueServiceTests
     {
         private IIssueRepository _issueRepository;
+        private IBookCopyRepository _bookCopyRepository;
         private IssueService _issueService;
 
         [SetUp]
         public void Setup()
         {
             _issueRepository = new IssueRepositoryStub();
-            _issueService = new IssueService(_issueRepository);
+            _bookCopyRepository = new BookCopyRepositoryStub();
+            _issueService = new IssueService(_issueRepository, _bookCopyRepository);
         }
 
         [Test]
-        public void Create_WithValidIssueRecord_ReturnsIssueId()
+        public void IssueBook_WithValidStudentIdAndBookId_ReturnsIssueId()
         {
             // Arrange
-            var issueRecord = new IssueRecord
-            {
-                StudentId = 1,
-                CopyId = 1,
-                IssueDate = DateTime.Now,
-                ReturnDate = null
-            };
+            int studentId = 1;
+            int bookId = 1;
 
             // Act
-            var result = _issueService.Create(issueRecord);
+            var result = _issueService.IssueBook(studentId, bookId);
 
             // Assert
             Assert.That(result, Is.GreaterThan(0));
         }
 
         [Test]
-        public void UpdateReturn_WithValidIssueIdAndReturnDate_ReturnsSuccessCount()
+        public void ReturnBook_WithValidIssueId_ReturnsSuccessCount()
         {
             // Arrange
-            var issueRecord = new IssueRecord
-            {
-                StudentId = 1,
-                CopyId = 1,
-                IssueDate = DateTime.Now,
-                ReturnDate = null
-            };
-            int issueId = _issueService.Create(issueRecord);
-            DateTime returnDate = DateTime.Now;
+            int studentId = 1;
+            int bookId = 1;
+            int issueId = _issueService.IssueBook(studentId, bookId);
 
             // Act
-            var result = _issueService.UpdateReturn(issueId, returnDate);
+            var result = _issueService.ReturnBook(issueId);
 
             // Assert
             Assert.That(result, Is.GreaterThan(0));
         }
 
-        // Test 3: GetIssuedBooks - Retrieves count of all issued books
         [Test]
-        public void GetIssuedBooks_WithAllIssues_ReturnsIssuedBooksCount()
+        public void GetIssuedBooks_WithAllIssues_ReturnsIssuedBooksList()
         {
             // Arrange
-            var issueRecord1 = new IssueRecord
-            {
-                StudentId = 1,
-                CopyId = 1,
-                IssueDate = DateTime.Now,
-                ReturnDate = null
-            };
-            var issueRecord2 = new IssueRecord
-            {
-                StudentId = 2,
-                CopyId = 2,
-                IssueDate = DateTime.Now,
-                ReturnDate = null
-            };
+            int studentId1 = 1;
+            int bookId1 = 1;
+            int studentId2 = 2;
+            int bookId2 = 2;
 
-            _issueService.Create(issueRecord1);
-            _issueService.Create(issueRecord2);
+            _issueService.IssueBook(studentId1, bookId1);
+            _issueService.IssueBook(studentId2, bookId2);
 
             // Act
             var result = _issueService.GetIssuedBooks();
 
             // Assert
-            Assert.That(result, Is.EqualTo(2));
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.Count, Is.EqualTo(2));
         }
     }
 }
