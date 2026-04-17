@@ -10,5 +10,6 @@ namespace LMS.Core.Repository.Interfaces
         int Create(IssueRecord issueRecord);
         int UpdateReturn(int issueId, DateTime returnDate);
         List<IssueRecord> GetIssuedBooks();
+        IssueRecord? GetIssueRecordById(int issueId);
     }
 }

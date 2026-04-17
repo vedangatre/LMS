@@ -35,6 +35,11 @@ namespace LMS.UnitTests.Stubs.IssueServiceStubs
         {
             return _issueRecords.FindAll(r => r.ReturnDate == null);
         }
+
+        public IssueRecord? GetIssueRecordById(int issueId)
+        {
+            return _issueRecords.Find(r => r.IssueId == issueId);
+        }
     }
 }
 

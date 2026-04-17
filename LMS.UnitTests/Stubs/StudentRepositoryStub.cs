@@ -35,5 +35,14 @@ namespace LMS.UnitTests.Stubs
             if (studentId == ExistingId) return new Student { StudentId = studentId, StudentName = ExistingName };
             return null;
         }
+
+        // GetAllStudents: returns a list containing the existing student
+        public List<Student> GetAllStudents()
+        {
+            return new List<Student> 
+            { 
+                new Student { StudentId = ExistingId, StudentName = ExistingName } 
+            };
+        }
     }
 }

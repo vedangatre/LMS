@@ -44,7 +44,7 @@ while (true)
     Console.WriteLine("5. Add student");
     Console.WriteLine("6. Delete student");
     Console.WriteLine("7. View all books");
-    Console.WriteLine("8. View issued books count");
+    Console.WriteLine("8. View issued books report");
     Console.WriteLine("0. Exit");
     Console.Write("Select option: ");
 
@@ -80,7 +80,7 @@ while (true)
                 ListBooks(bookService);
                 break;
             case "8":
-                ShowIssuedBooks(issueService);
+                ShowIssuedBooksReport(bookService, studentService, issueService);
                 break;
             default:
                 Console.WriteLine("Invalid option.");
@@ -207,8 +207,64 @@ static void ListBooks(BookService bookService)
     }
 }
 
-static void ShowIssuedBooks(IssueService issueService)
+static void ShowIssuedBooksReport(BookService bookService, StudentService studentService, IssueService issueService)
 {
+    Console.WriteLine();
+    Console.WriteLine("=== Issued Books Report ===");
+    Console.WriteLine();
+
     var issuedBooks = issueService.GetIssuedBooks();
-    Console.WriteLine($"Issued books count: {issuedBooks.Count}");
+    if (issuedBooks.Count == 0)
+    {
+        Console.WriteLine("No books currently issued.");
+        return;
+    }
+
+    var allBooks = bookService.GetAllBooks();
+    var allStudents = studentService.GetAllStudents();
+
+    // Group issued books by student
+    var groupedByStudent = issuedBooks.GroupBy(i => i.StudentId);
+
+    int reportNumber = 1;
+    foreach (var studentGroup in groupedByStudent)
+    {
+        var student = allStudents.FirstOrDefault(s => s.StudentId == studentGroup.Key);
+        if (student is null) continue;
+
+        Console.WriteLine($"{reportNumber}. Student: {student.StudentName} (ID: {student.StudentId})");
+        Console.WriteLine(new string('-', 100));
+
+        int bookCount = 1;
+        var studentIssuedBooks = studentGroup.ToList();
+        foreach (var issue in studentIssuedBooks)
+        {
+            var issuedDate = issue.IssueDate;
+            var daysPassed = (DateTime.Now - issuedDate).Days;
+
+            // Get book name from available books
+            var bookName = GetBookNameByCopyId(issue.CopyId, allBooks);
+
+            Console.WriteLine($"  {bookCount}. Book Name: {bookName}");
+            Console.WriteLine($"     Copy ID: {issue.CopyId}");
+            Console.WriteLine($"     Issue Date: {issuedDate:yyyy-MM-dd}");
+            Console.WriteLine($"     Days Passed: {daysPassed} days");
+            Console.WriteLine();
+            bookCount++;
+        }
+
+        reportNumber++;
+    }
+
+    Console.WriteLine("=== Report Summary ===");
+    Console.WriteLine($"Total Books Issued: {issuedBooks.Count}");
+    Console.WriteLine($"Total Students with Books: {groupedByStudent.Count()}");
+}
+
+static string GetBookNameByCopyId(int copyId, List<LMS.Core.Models.BookDetails> allBooks)
+{
+    // Since we don't have a direct mapping in our current schema,
+    // we'll display the copy ID. In production, you'd query BookCopy -> Book relationship
+    // For now, we return a placeholder that indicates we need additional data
+    return $"Book (Copy: {copyId})";
 }

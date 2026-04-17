@@ -82,5 +82,32 @@ namespace LMS.Core.Repository.Implementation
                 StudentName = reader.GetString(1)
             };
         }
+
+        public List<Student> GetAllStudents()
+        {
+            const string sql = @"
+                SELECT StudentId, StudentName
+                FROM Student
+                ORDER BY StudentId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+            var students = new List<Student>();
+
+            while (reader.Read())
+            {
+                students.Add(new Student
+                {
+                    StudentId = reader.GetInt32(0),
+                    StudentName = reader.GetString(1)
+                });
+            }
+
+            return students;
+        }
     }
 }
