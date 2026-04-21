@@ -178,5 +178,36 @@ namespace LMS.Core.Repository.Implementation
                 BookId = reader.GetInt32(1)
             };
         }
+
+        public BookCopy? GetByCopyId(int copyId)
+        {
+            const string sql = @"
+                SELECT CopyId, BookId
+                FROM BookCopy
+                WHERE CopyId = @copyId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var copyIdParameter = command.CreateParameter();
+            copyIdParameter.ParameterName = "@copyId";
+            copyIdParameter.Value = copyId;
+            command.Parameters.Add(copyIdParameter);
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            return new BookCopy
+            {
+                CopyId = reader.GetInt32(0),
+                BookId = reader.GetInt32(1)
+            };
+        }
     }
 }

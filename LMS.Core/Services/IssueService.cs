@@ -8,24 +8,40 @@ namespace LMS.Core.Services
 {
     public class IssueService
     {
-        private IIssueRepository _issueRepository;
+        private readonly IIssueRepository _issueRepository;
+        private readonly IBookCopyRepository _bookCopyRepository;
 
-        public IssueService(IIssueRepository issueRepository)
+        public IssueService(IIssueRepository issueRepository, IBookCopyRepository bookCopyRepository)
         {
             _issueRepository = issueRepository;
+            _bookCopyRepository = bookCopyRepository;
         }
 
-        public int Create(IssueRecord issueRecord)
+        public int IssueBook(int studentId, int bookId)
         {
+            var availableCopy = _bookCopyRepository.GetAvailableCopy(bookId);
+            if (availableCopy == null)
+            {
+                throw new InvalidOperationException("No available copy for this book.");
+            }
+
+            var issueRecord = new IssueRecord
+            {
+                StudentId = studentId,
+                CopyId = availableCopy.CopyId,
+                IssueDate = DateTime.Now,
+                ReturnDate = null
+            };
+
             return _issueRepository.Create(issueRecord);
         }
 
-        public int UpdateReturn(int issueId, DateTime returnDate)
+        public int ReturnBook(int issueId)
         {
-            return _issueRepository.UpdateReturn(issueId, returnDate);
+            return _issueRepository.UpdateReturn(issueId, DateTime.Now);
         }
 
-        public int GetIssuedBooks()
+        public List<IssueRecord> GetIssuedBooks()
         {
             return _issueRepository.GetIssuedBooks();
         }

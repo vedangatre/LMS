@@ -41,7 +41,6 @@ namespace LMS.Core.Services
                 throw new ArgumentException("Book name cannot be empty.", nameof(bookName));
             }
 
-            // Normalize + validate author names, then dedupe (set semantics).
             var normalizedAuthorNames = new HashSet<string>(StringComparer.Ordinal);
             foreach (var author in authorNames)
             {
@@ -60,7 +59,6 @@ namespace LMS.Core.Services
                 normalizedAuthorNames.Add(trimmed);
             }
 
-            // Resolve author IDs for the normalized author set.
             var authorIds = new HashSet<int>();
             foreach (var authorName in normalizedAuthorNames)
             {
@@ -76,8 +74,6 @@ namespace LMS.Core.Services
                 authorIds.Add(added.AuthorId);
             }
 
-            // Duplication rule:
-            // - same bookName AND same AUTHOR SET (order-insensitive) => blocked
             var existingBooks = _bookRepository.SearchByName(bookNameString) ?? new List<Book>();
             foreach (var existingBook in existingBooks)
             {

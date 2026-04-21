@@ -9,6 +9,7 @@ namespace LMS.Core.Repository.Interfaces
     {
         int Create(IssueRecord issueRecord);
         int UpdateReturn(int issueId, DateTime returnDate);
-        int GetIssuedBooks();
+        List<IssueRecord> GetIssuedBooks();
+        IssueRecord? GetIssueRecordById(int issueId);
     }
 }

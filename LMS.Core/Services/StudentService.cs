@@ -38,5 +38,10 @@ namespace LMS.Core.Services
         {
             return _studentRepository.GetStudentById(studentId);
         }
+
+        public List<Student> GetAllStudents()
+        {
+            return _studentRepository.GetAllStudents();
+        }
     }
 }

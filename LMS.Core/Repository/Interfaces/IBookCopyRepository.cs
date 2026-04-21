@@ -14,10 +14,7 @@ namespace LMS.Core.Repository.Interfaces
         bool HasIssuedCopies(int bookId);
         int GetIssuedCount(int bookId);
         int GetAvailableCount(int bookId);
-        //later change to remove specific copy by copyId
-        // remove damaged copies 
-        // change status of copy to damaged function
-
         BookCopy? GetAvailableCopy(int bookId);
+        BookCopy? GetByCopyId(int copyId);
     }
 }

@@ -72,16 +72,62 @@ namespace LMS.Core.Repository.Implementation
             return command.ExecuteNonQuery();
         }
 
-        public int GetIssuedBooks()
+        public List<IssueRecord> GetIssuedBooks()
         {
-            const string sql = @"SELECT COUNT(*) FROM IssueRecord WHERE ReturnDate IS NULL";
+            const string sql = @"SELECT IssueId, StudentId, CopyId, IssueDate, ReturnDate FROM IssueRecord WHERE ReturnDate IS NULL";
 
             using var connection = _connectionFactory.CreateConnection();
             using var command = connection.CreateCommand();
             command.CommandText = sql;
 
             connection.Open();
-            return (int)command.ExecuteScalar()!;
+            var reader = command.ExecuteReader();
+            var issuedBooks = new List<IssueRecord>();
+
+            while (reader.Read())
+            {
+                issuedBooks.Add(new IssueRecord
+                {
+                    IssueId = (int)reader["IssueId"],
+                    StudentId = (int)reader["StudentId"],
+                    CopyId = (int)reader["CopyId"],
+                    IssueDate = (DateTime)reader["IssueDate"],
+                    ReturnDate = reader["ReturnDate"] == DBNull.Value ? null : (DateTime?)reader["ReturnDate"]
+                });
+            }
+
+            return issuedBooks;
+        }
+
+        public IssueRecord? GetIssueRecordById(int issueId)
+        {
+            const string sql = @"SELECT IssueId, StudentId, CopyId, IssueDate, ReturnDate FROM IssueRecord WHERE IssueId = @issueId";
+
+            using var connection = _connectionFactory.CreateConnection();
+            using var command = connection.CreateCommand();
+            command.CommandText = sql;
+
+            var issueParameter = command.CreateParameter();
+            issueParameter.ParameterName = "@issueId";
+            issueParameter.Value = issueId;
+            command.Parameters.Add(issueParameter);
+
+            connection.Open();
+            using var reader = command.ExecuteReader();
+
+            if (!reader.Read())
+            {
+                return null;
+            }
+
+            return new IssueRecord
+            {
+                IssueId = (int)reader["IssueId"],
+                StudentId = (int)reader["StudentId"],
+                CopyId = (int)reader["CopyId"],
+                IssueDate = (DateTime)reader["IssueDate"],
+                ReturnDate = reader["ReturnDate"] == DBNull.Value ? null : (DateTime?)reader["ReturnDate"]
+            };
         }
     }
 }
