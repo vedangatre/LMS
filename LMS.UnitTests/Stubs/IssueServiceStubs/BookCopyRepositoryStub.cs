@@ -62,5 +62,10 @@ namespace LMS.UnitTests.Stubs.IssueServiceStubs
         {
             return _bookCopies.Find(c => c.BookId == bookId && !c.IsDamaged);
         }
+
+        public BookCopy? GetByCopyId(int copyId)
+        {
+            return _bookCopies.Find(c => c.CopyId == copyId);
+        }
     }
 }

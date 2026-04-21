@@ -32,6 +32,7 @@ using var scope = host.Services.CreateScope();
 var bookService = scope.ServiceProvider.GetRequiredService<BookService>();
 var studentService = scope.ServiceProvider.GetRequiredService<StudentService>();
 var issueService = scope.ServiceProvider.GetRequiredService<IssueService>();
+var bookCopyRepository = scope.ServiceProvider.GetRequiredService<IBookCopyRepository>();
 
 while (true)
 {
@@ -80,7 +81,7 @@ while (true)
                 ListBooks(bookService);
                 break;
             case "8":
-                ShowIssuedBooksReport(bookService, studentService, issueService);
+                ShowIssuedBooksReport(bookService, studentService, issueService, bookCopyRepository);
                 break;
             default:
                 Console.WriteLine("Invalid option.");
@@ -207,7 +208,7 @@ static void ListBooks(BookService bookService)
     }
 }
 
-static void ShowIssuedBooksReport(BookService bookService, StudentService studentService, IssueService issueService)
+static void ShowIssuedBooksReport(BookService bookService, StudentService studentService, IssueService issueService, IBookCopyRepository bookCopyRepository)
 {
     Console.WriteLine();
     Console.WriteLine("=== Issued Books Report ===");
@@ -243,7 +244,7 @@ static void ShowIssuedBooksReport(BookService bookService, StudentService studen
             var daysPassed = (DateTime.Now - issuedDate).Days;
 
             // Get book name from available books
-            var bookName = GetBookNameByCopyId(issue.CopyId, allBooks);
+            var bookName = GetBookNameByCopyId(issue.CopyId, allBooks, bookCopyRepository);
 
             Console.WriteLine($"  {bookCount}. Book Name: {bookName}");
             Console.WriteLine($"     Copy ID: {issue.CopyId}");
@@ -261,10 +262,12 @@ static void ShowIssuedBooksReport(BookService bookService, StudentService studen
     Console.WriteLine($"Total Students with Books: {groupedByStudent.Count()}");
 }
 
-static string GetBookNameByCopyId(int copyId, List<LMS.Core.Models.BookDetails> allBooks)
+static string GetBookNameByCopyId(int copyId, List<LMS.Core.Models.BookDetails> allBooks, IBookCopyRepository bookCopyRepository)
 {
-    // Since we don't have a direct mapping in our current schema,
-    // we'll display the copy ID. In production, you'd query BookCopy -> Book relationship
-    // For now, we return a placeholder that indicates we need additional data
-    return $"Book (Copy: {copyId})";
+    var bookCopy = bookCopyRepository.GetByCopyId(copyId);
+    if (bookCopy == null)
+        return $"Unknown Book (Copy: {copyId})";
+
+    var book = allBooks.FirstOrDefault(b => b.BookId == bookCopy.BookId);
+    return book != null ? book.BookName : $"Unknown Book (Copy: {copyId})";
 }

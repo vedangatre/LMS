@@ -19,5 +19,6 @@ namespace LMS.Core.Repository.Interfaces
         // change status of copy to damaged function
 
         BookCopy? GetAvailableCopy(int bookId);
+        BookCopy? GetByCopyId(int copyId);
     }
 }

@@ -74,5 +74,10 @@ namespace LMS.UnitTests.Stubs.BookServiceStubs
         {
             _issuedCopiesByBookId[bookId] = count;
         }
+
+        public BookCopy? GetByCopyId(int copyId)
+        {
+            return null;
+        }
     }
 }
