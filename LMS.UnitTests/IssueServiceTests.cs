@@ -26,36 +26,29 @@ namespace LMS.UnitTests
         [Test]
         public void IssueBook_WithValidStudentIdAndBookId_ReturnsIssueId()
         {
-            // Arrange
             int studentId = 1;
             int bookId = 1;
 
-            // Act
             var result = _issueService.IssueBook(studentId, bookId);
 
-            // Assert
             Assert.That(result, Is.GreaterThan(0));
         }
 
         [Test]
         public void ReturnBook_WithValidIssueId_ReturnsSuccessCount()
         {
-            // Arrange
             int studentId = 1;
             int bookId = 1;
             int issueId = _issueService.IssueBook(studentId, bookId);
 
-            // Act
             var result = _issueService.ReturnBook(issueId);
 
-            // Assert
             Assert.That(result, Is.GreaterThan(0));
         }
 
         [Test]
         public void GetIssuedBooks_WithAllIssues_ReturnsIssuedBooksList()
         {
-            // Arrange
             int studentId1 = 1;
             int bookId1 = 1;
             int studentId2 = 2;
@@ -64,10 +57,8 @@ namespace LMS.UnitTests
             _issueService.IssueBook(studentId1, bookId1);
             _issueService.IssueBook(studentId2, bookId2);
 
-            // Act
             var result = _issueService.GetIssuedBooks();
 
-            // Assert
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Count, Is.EqualTo(2));
         }

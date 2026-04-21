@@ -8,6 +8,6 @@ namespace LMS.Core.Models
     {
         public int CopyId { get; set; }
         public int BookId { get; set; }
-        public bool IsDamaged { get; set; } = false; //out of scope..
+        public bool IsDamaged { get; set; } = false; 
     }
 }

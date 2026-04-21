@@ -48,7 +48,6 @@ namespace LMS.UnitTests
             var first = AddBook(" onepiece ", " oda ", " Tejas ");
             Assert.That(first, Not.Null);
 
-            // Same book name + same author set => blocked (order can differ too).
             var second = AddBook("onepiece", "Tejas", "oda");
             Assert.That(second, Is.Null);
 
@@ -75,33 +74,27 @@ namespace LMS.UnitTests
         [Test]
         public void AddBook_DuplicateBlockedByBookNameAndAuthorSet()
         {
-            // onepiece : oda, Tejas // add
             var b1 = AddBook("onepiece", "oda", "Tejas");
             Assert.That(b1, Not.Null);
 
-            // onepiece : harsh, Omkar // add
             var b2 = AddBook("onepiece", "harsh", "Omkar");
             Assert.That(b2, Not.Null);
 
-            // onepiece: oda, Tejas // blocked
             var b3 = AddBook("onepiece", "oda", "Tejas");
             Assert.That(b3, Is.Null);
 
-            // onepiece: harsh, Omkar, Vedang // allowed
             var b4 = AddBook("onepiece", "harsh", "Omkar", "Vedang");
             Assert.That(b4, Not.Null);
 
-            // Naruto: Prajwal, arnav // allowed
             var b5 = AddBook("Naruto", "Prajwal", "arnav");
             Assert.That(b5, Not.Null);
 
-            // onepiece: Vedang, harsh, Omkar // blocked (same author set, different order)
             var b6 = AddBook("onepiece", "Vedang", "harsh", "Omkar");
             Assert.That(b6, Is.Null);
 
-            Assert.That(_bookRepo.GetAll().Count, EqualTo(4));     // b1, b2, b4, b5
-            Assert.That(_bookAuthorRepo.AddCallCount, EqualTo(9)); // 2 + 2 + 3 + 2
-            Assert.That(_authorRepo.TotalAuthors, EqualTo(7));      // oda, Tejas, harsh, Omkar, Vedang, Prajwal, arnav
+            Assert.That(_bookRepo.GetAll().Count, EqualTo(4));     
+            Assert.That(_bookAuthorRepo.AddCallCount, EqualTo(9)); 
+            Assert.That(_authorRepo.TotalAuthors, EqualTo(7));      
         }
 
         [Test]

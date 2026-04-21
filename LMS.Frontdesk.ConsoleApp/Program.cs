@@ -77,14 +77,14 @@ static void IssueBookToStudent(BookService bookService, StudentService studentSe
     Console.Write("Enter Student ID: ");
     if (!int.TryParse(Console.ReadLine(), out var studentId))
     {
-        Console.WriteLine("❌ Invalid student ID.");
+        Console.WriteLine("  Invalid student ID.");
         return;
     }
 
     var student = studentService.GetStudentById(studentId);
     if (student is null)
     {
-        Console.WriteLine("❌ Student not found.");
+        Console.WriteLine("  Student not found.");
         return;
     }
 
@@ -96,7 +96,7 @@ static void IssueBookToStudent(BookService bookService, StudentService studentSe
 
     if (availableBooks.Count == 0)
     {
-        Console.WriteLine("❌ No books available for issue.");
+        Console.WriteLine("  No books available for issue.");
         return;
     }
 
@@ -111,20 +111,20 @@ static void IssueBookToStudent(BookService bookService, StudentService studentSe
     Console.Write("Enter Book ID to issue: ");
     if (!int.TryParse(Console.ReadLine(), out var bookId))
     {
-        Console.WriteLine("❌ Invalid book ID.");
+        Console.WriteLine("  Invalid book ID.");
         return;
     }
 
     var selectedBook = allBooks.FirstOrDefault(b => b.BookId == bookId);
     if (selectedBook is null)
     {
-        Console.WriteLine("❌ Book not found.");
+        Console.WriteLine("  Book not found.");
         return;
     }
 
     if (selectedBook.AvailableCount <= 0)
     {
-        Console.WriteLine("❌ No available copies of this book.");
+        Console.WriteLine("  No available copies of this book.");
         return;
     }
 
@@ -132,12 +132,11 @@ static void IssueBookToStudent(BookService bookService, StudentService studentSe
     {
         var issueId = issueService.IssueBook(studentId, bookId);
 
-        // Get updated book info to show new counts
         var updatedBooks = bookService.GetAllBooks();
         var updatedBook = updatedBooks.FirstOrDefault(b => b.BookId == bookId)!;
 
         Console.WriteLine();
-        Console.WriteLine("✓ Book Issued Successfully!");
+        Console.WriteLine(" Book Issued Successfully!");
         Console.WriteLine($"  Issue ID: {issueId}");
         Console.WriteLine($"  Book: {selectedBook.BookName}");
         Console.WriteLine($"  Student ID: {studentId}");
@@ -150,7 +149,7 @@ static void IssueBookToStudent(BookService bookService, StudentService studentSe
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Failed to issue book: {ex.Message}");
+        Console.WriteLine($"Failed to issue book: {ex.Message}");
     }
 }
 
@@ -162,7 +161,7 @@ static void ReturnBookFromStudent(BookService bookService, IssueService issueSer
     var issuedBooks = issueService.GetIssuedBooks();
     if (issuedBooks.Count == 0)
     {
-        Console.WriteLine("❌ No books currently issued.");
+        Console.WriteLine("No books currently issued.");
         return;
     }
 
@@ -176,14 +175,14 @@ static void ReturnBookFromStudent(BookService bookService, IssueService issueSer
     Console.Write("Enter Issue ID to return: ");
     if (!int.TryParse(Console.ReadLine(), out var issueId))
     {
-        Console.WriteLine("❌ Invalid issue ID.");
+        Console.WriteLine("Invalid issue ID.");
         return;
     }
 
     var issue = issuedBooks.FirstOrDefault(i => i.IssueId == issueId);
     if (issue is null)
     {
-        Console.WriteLine("❌ Issue not found or book already returned.");
+        Console.WriteLine("Issue not found or book already returned.");
         return;
     }
 
@@ -201,18 +200,17 @@ static void ReturnBookFromStudent(BookService bookService, IssueService issueSer
             Console.WriteLine($"  Return Date: {DateTime.Now:yyyy-MM-dd}");
             Console.WriteLine();
 
-            // Show updated counts - refresh data
             var updatedIssuedBooks = issueService.GetIssuedBooks();
             Console.WriteLine($"Current Status:");
             Console.WriteLine($"  Total Issued Books: {updatedIssuedBooks.Count}");
         }
         else
         {
-            Console.WriteLine("❌ Failed to return book.");
+            Console.WriteLine("  Failed to return book.");
         }
     }
     catch (Exception ex)
     {
-        Console.WriteLine($"❌ Error returning book: {ex.Message}");
+        Console.WriteLine($"  Error returning book: {ex.Message}");
     }
 }

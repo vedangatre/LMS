@@ -224,7 +224,6 @@ static void ShowIssuedBooksReport(BookService bookService, StudentService studen
     var allBooks = bookService.GetAllBooks();
     var allStudents = studentService.GetAllStudents();
 
-    // Group issued books by student
     var groupedByStudent = issuedBooks.GroupBy(i => i.StudentId);
 
     int reportNumber = 1;
@@ -243,7 +242,6 @@ static void ShowIssuedBooksReport(BookService bookService, StudentService studen
             var issuedDate = issue.IssueDate;
             var daysPassed = (DateTime.Now - issuedDate).Days;
 
-            // Get book name from available books
             var bookName = GetBookNameByCopyId(issue.CopyId, allBooks, bookCopyRepository);
 
             Console.WriteLine($"  {bookCount}. Book Name: {bookName}");

@@ -13,7 +13,6 @@ namespace LMS.UnitTests.Stubs.IssueServiceStubs
 
         public BookCopyRepositoryStub()
         {
-            // Initialize with some test data
             _bookCopies.Add(new BookCopy { CopyId = 1, BookId = 1, IsDamaged = false });
             _bookCopies.Add(new BookCopy { CopyId = 2, BookId = 2, IsDamaged = false });
             _nextCopyId = 3;
@@ -43,13 +42,11 @@ namespace LMS.UnitTests.Stubs.IssueServiceStubs
 
         public bool HasIssuedCopies(int bookId)
         {
-            // For stub purposes, assume no copies are issued
             return false;
         }
 
         public int GetIssuedCount(int bookId)
         {
-            // For stub purposes, return 0
             return 0;
         }
 
